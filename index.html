@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pokélab</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --text:#111111;
+    --sub:#6b6b6b;
+    --border:#dcdcdc;
+    --border-strong:#111111;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",sans-serif;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+  }
+  #page{
+    width:100%;
+    max-width:440px;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    padding:9vh 28px 32px;
+  }
+  h1{
+    text-align:center;
+    font-size:2.2rem;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin:0 0 12vh;
+    color:var(--text);
+  }
+  nav{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .nav-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    padding:22px 20px;
+    border:1.5px solid var(--border-strong);
+    border-radius:14px;
+    background:#fff;
+    color:var(--text);
+    font-size:1.05rem;
+    font-weight:600;
+    text-decoration:none;
+    text-align:center;
+    line-height:1.4;
+    transition:background .15s ease,color .15s ease,transform .1s ease;
+  }
+  .nav-btn:active{transform:scale(0.98)}
+  @media (hover:hover){
+    .nav-btn:hover{background:var(--text);color:#fff}
+  }
+  footer{
+    margin-top:auto;
+    padding-top:10vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  #greet{
+    font-size:.8rem;
+    color:var(--sub);
+    min-height:1em;
+  }
+  #loginBtn{
+    padding:9px 22px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:#fff;
+    color:var(--sub);
+    font-size:.82rem;
+    font-weight:500;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  #loginBtn:hover{border-color:var(--border-strong);color:var(--text)}
+
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:10;padding:24px}
+  .modal .box{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
+  .modal h2{font-size:17px;margin:0 0 16px;font-weight:700;color:var(--text)}
+  .modal input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:11px 12px;margin-bottom:10px;outline:none;font-family:inherit}
+  .modal input:focus{border-color:var(--border-strong)}
+  .modal button.primary{margin-top:6px;background:var(--text);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit}
+  .modal button.secondary{background:transparent;border:none;color:var(--sub);margin-top:10px;font-size:13px;cursor:pointer;width:100%;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="page">
+  <h1>Pokélab</h1>
+  <nav>
+    <a class="nav-btn" href="https://iruroda.github.io/todayspokemon">오늘의 포켓몬은 뭘까요</a>
+    <a class="nav-btn" href="https://iruroda.github.io/pokopia">Pokémon Pokopia</a>
+  </nav>
+  <footer>
+    <div id="greet"></div>
+    <button id="loginBtn" type="button">로그인</button>
+  </footer>
+</div>
+
+<div id="loginModal" class="modal">
+  <div class="box">
+    <h2 id="loginTitle">로그인</h2>
+    <input id="loginId" type="text" name="username" placeholder="아이디" autocomplete="username">
+    <input id="loginPw" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
+    <button class="primary" id="loginSubmit" type="button">로그인</button>
+    <button class="secondary" id="loginCancel" type="button">닫기</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+// ---- 로그인: 퀴즈 페이지와 동일한 Firebase Auth 계정 체계 공유 ----
+var fbAuth=null;
+try{
+  firebase.initializeApp({apiKey:"AIzaSyA1qlkS_vNnAEMhyeJxH0EHRxYrFeJXZDk",authDomain:"todayspokemon-ef9c0.firebaseapp.com",projectId:"todayspokemon-ef9c0",storageBucket:"todayspokemon-ef9c0.firebasestorage.app",messagingSenderId:"69457831977",appId:"1:69457831977:web:faeee4ba343a6c9b931438"});
+  fbAuth=firebase.auth();
+}catch(e){console.warn("Firebase 초기화 실패",e)}
+function idToEmail(id){
+  var hex="",b=unescape(encodeURIComponent(id));
+  for(var i=0;i<b.length;i++){var h=b.charCodeAt(i).toString(16);hex+=(h.length<2?"0":"")+h}
+  return "u"+hex+"@todayspokemon.app";
+}
+var $=function(id){return document.getElementById(id)};
+var curUser=localStorage.getItem("psq2curuser")||null;
+function updateAuthUI(){
+  $("loginBtn").textContent=curUser?"로그아웃":"로그인";
+  $("greet").textContent=curUser?curUser+"님, 안녕하세요.":"";
+}
+$("loginBtn").onclick=function(){
+  if(curUser){
+    if(fbAuth)fbAuth.signOut();
+    curUser=null;localStorage.removeItem("psq2curuser");
+    updateAuthUI();
+  }else{
+    $("loginId").value="";$("loginPw").value="";
+    $("loginModal").style.display="flex";
+  }
+};
+$("loginCancel").onclick=function(){$("loginModal").style.display="none"};
+$("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal").style.display="none"};
+$("loginSubmit").onclick=function(){
+  var id=$("loginId").value.trim(),pw=$("loginPw").value;
+  if(!id||!pw){alert("아이디와 비밀번호를 입력하세요");return}
+  if(!fbAuth){alert("서버 연결이 안 돼 로그인할 수 없습니다");return}
+  if(pw.length<6){alert("비밀번호는 6자 이상이어야 합니다");return}
+  var email=idToEmail(id);
+  if(email.length>80){alert("아이디가 너무 깁니다");return}
+  var btn=$("loginSubmit");btn.disabled=true;btn.textContent="로그인 중…";
+  fbAuth.createUserWithEmailAndPassword(email,pw)
+    .catch(function(err){
+      if(err&&err.code==="auth/email-already-in-use")return fbAuth.signInWithEmailAndPassword(email,pw);
+      throw err;
+    })
+    .then(function(cred){
+      curUser=id;localStorage.setItem("psq2curuser",id);
+      $("loginModal").style.display="none";
+      updateAuthUI();
+    })
+    .catch(function(err){
+      var m="로그인에 실패했습니다";
+      if(err&&(err.code==="auth/invalid-credential"||err.code==="auth/wrong-password"))m="비밀번호가 일치하지 않습니다";
+      else if(err&&err.code==="auth/weak-password")m="비밀번호는 6자 이상이어야 합니다";
+      else if(err&&err.code==="auth/network-request-failed")m="네트워크 연결을 확인하세요";
+      alert(m);
+    })
+    .then(function(){btn.disabled=false;btn.textContent="로그인";updateAuthUI()});
+};
+updateAuthUI();
+if(fbAuth)fbAuth.onAuthStateChanged(function(u){
+  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");updateAuthUI();}
+});
+</script>
+</body>
+</html>
