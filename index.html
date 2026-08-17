@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Pokélab</title>
+<link rel="icon" type="image/png" href="ball.png">
+<link rel="apple-touch-icon" href="ball.png">
 <style>
   :root{
     --bg:#ffffff;
@@ -99,6 +101,28 @@
   .modal input:focus{border-color:var(--border-strong)}
   .modal button.primary{margin-top:6px;background:var(--text);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit}
   .modal button.secondary{background:transparent;border:none;color:var(--sub);margin-top:10px;font-size:13px;cursor:pointer;width:100%;font-family:inherit}
+
+  #adminPanel{display:none;width:100%;max-width:480px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:6vh 24px 32px;margin:0 auto}
+  #adminPanel h1{text-align:center;font-size:1.6rem;font-weight:800;margin:0 0 24px}
+  .admin-card{border:1.5px solid var(--border-strong);border-radius:14px;padding:18px;margin-bottom:18px}
+  .admin-card h3{margin:0 0 12px;font-size:.95rem;font-weight:700}
+  .admin-card input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;margin-bottom:8px;outline:none;font-family:inherit}
+  .admin-card input:focus{border-color:var(--border-strong)}
+  .primary-btn{background:var(--text);border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:4px}
+  .admin-msg{font-size:.78rem;color:var(--sub);margin-top:8px;min-height:1em}
+  .admin-note{font-size:.72rem;color:var(--sub);margin-bottom:12px;line-height:1.5}
+  .admin-sub{font-size:.78rem;color:var(--sub);font-weight:400}
+  .admin-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto}
+  .admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  .admin-row .who{display:flex;flex-direction:column;gap:2px}
+  .admin-row .who b{font-size:.85rem}
+  .admin-row .who span{font-size:.7rem;color:var(--sub)}
+  .admin-row button{border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 10px;font-size:.72rem;cursor:pointer;font-family:inherit;flex-shrink:0}
+  .admin-row button:hover{border-color:var(--border-strong)}
+  .admin-row.is-disabled{opacity:.55}
+  .admin-footer{margin-top:auto;padding-top:6vh;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .admin-footer button{padding:9px 22px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--sub);font-size:.82rem;font-weight:500;cursor:pointer;font-family:inherit}
+  .admin-footer button:hover{border-color:var(--border-strong);color:var(--text)}
 </style>
 </head>
 <body>
@@ -114,6 +138,37 @@
   </footer>
 </div>
 
+<div id="adminPanel">
+  <h1>회원 관리</h1>
+
+  <section class="admin-card">
+    <h3>내 비밀번호 변경</h3>
+    <input id="adminOldPw" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
+    <input id="adminNewPw" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
+    <button class="primary-btn" id="adminChangePwBtn" type="button">비밀번호 변경</button>
+    <div class="admin-msg" id="adminPwMsg"></div>
+  </section>
+
+  <section class="admin-card">
+    <h3>회원 추가</h3>
+    <input id="adminNewId" type="text" placeholder="새 회원 아이디" autocomplete="off">
+    <input id="adminNewMemberPw" type="password" placeholder="초기 비밀번호 (6자 이상)" autocomplete="new-password">
+    <button class="primary-btn" id="adminAddMemberBtn" type="button">회원 추가</button>
+    <div class="admin-msg" id="adminAddMsg"></div>
+  </section>
+
+  <section class="admin-card">
+    <h3>회원 목록 <span id="adminMemberCount" class="admin-sub"></span></h3>
+    <div class="admin-note">회원 비밀번호는 본인만 변경할 수 있어요(관리자가 강제로 바꿔줄 수는 없는 구조입니다). "삭제"는 실제 계정 삭제가 아니라 로그인을 막는 비활성화이며, 다시 "활성화"로 되돌릴 수 있습니다.</div>
+    <div id="adminMemberList" class="admin-list"><div class="admin-sub">불러오는 중…</div></div>
+  </section>
+
+  <footer class="admin-footer">
+    <div id="adminGreet" class="admin-sub"></div>
+    <button id="adminLogoutBtn" type="button">로그아웃</button>
+  </footer>
+</div>
+
 <div id="loginModal" class="modal">
   <div class="box">
     <h2 id="loginTitle">로그인</h2>
@@ -126,12 +181,15 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 // ---- 로그인: 퀴즈 페이지와 동일한 Firebase Auth 계정 체계 공유 ----
-var fbAuth=null;
+var FIREBASE_CONFIG={apiKey:"AIzaSyA1qlkS_vNnAEMhyeJxH0EHRxYrFeJXZDk",authDomain:"todayspokemon-ef9c0.firebaseapp.com",projectId:"todayspokemon-ef9c0",storageBucket:"todayspokemon-ef9c0.firebasestorage.app",messagingSenderId:"69457831977",appId:"1:69457831977:web:faeee4ba343a6c9b931438"};
+var fbAuth=null, db=null;
 try{
-  firebase.initializeApp({apiKey:"AIzaSyA1qlkS_vNnAEMhyeJxH0EHRxYrFeJXZDk",authDomain:"todayspokemon-ef9c0.firebaseapp.com",projectId:"todayspokemon-ef9c0",storageBucket:"todayspokemon-ef9c0.firebasestorage.app",messagingSenderId:"69457831977",appId:"1:69457831977:web:faeee4ba343a6c9b931438"});
+  firebase.initializeApp(FIREBASE_CONFIG);
   fbAuth=firebase.auth();
+  db=firebase.firestore();
 }catch(e){console.warn("Firebase 초기화 실패",e)}
 function idToEmail(id){
   var hex="",b=unescape(encodeURIComponent(id));
@@ -140,22 +198,64 @@ function idToEmail(id){
 }
 var $=function(id){return document.getElementById(id)};
 var curUser=localStorage.getItem("psq2curuser")||null;
+var isAdminUser=false;
+
 function updateAuthUI(){
   $("loginBtn").textContent=curUser?"로그아웃":"로그인";
   $("greet").textContent=curUser?curUser+"님, 안녕하세요.":"";
+  if($("adminGreet"))$("adminGreet").textContent=curUser?curUser+"님 (관리자)":"";
+}
+function renderMode(){
+  var showAdmin=!!(curUser&&isAdminUser);
+  $("page").style.display=showAdmin?"none":"flex";
+  $("adminPanel").style.display=showAdmin?"flex":"none";
+}
+function doLogout(){
+  if(fbAuth)fbAuth.signOut();
+  curUser=null;localStorage.removeItem("psq2curuser");
+  isAdminUser=false;
+  updateAuthUI();renderMode();
 }
 $("loginBtn").onclick=function(){
-  if(curUser){
-    if(fbAuth)fbAuth.signOut();
-    curUser=null;localStorage.removeItem("psq2curuser");
-    updateAuthUI();
-  }else{
+  if(curUser){doLogout()}
+  else{
     $("loginId").value="";$("loginPw").value="";
     $("loginModal").style.display="flex";
   }
 };
+if($("adminLogoutBtn"))$("adminLogoutBtn").onclick=doLogout;
 $("loginCancel").onclick=function(){$("loginModal").style.display="none"};
 $("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal").style.display="none"};
+
+// 로그인/회원가입 성공 후: Firestore에 이름·마지막 접속 기록, 비활성 계정 차단, 관리자 여부 판별
+function afterAuthSuccess(id, uid){
+  if(!db){
+    curUser=id;localStorage.setItem("psq2curuser",id);
+    updateAuthUI();renderMode();
+    return Promise.resolve();
+  }
+  var ref=db.collection("users").doc(uid);
+  return ref.get().then(function(doc){
+    if(doc.exists&&doc.data().disabled===true){
+      return fbAuth.signOut().then(function(){
+        return Promise.reject({code:"app/disabled",message:"관리자에 의해 비활성화된 계정입니다."});
+      });
+    }
+    var payload={name:id,lastLogin:firebase.firestore.FieldValue.serverTimestamp()};
+    if(!doc.exists){
+      payload.disabled=false;
+      payload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+    }
+    var wasAdmin=doc.exists&&doc.data().isAdmin===true;
+    return ref.set(payload,{merge:true}).then(function(){
+      isAdminUser=wasAdmin;
+      curUser=id;localStorage.setItem("psq2curuser",id);
+      updateAuthUI();renderMode();
+      if(isAdminUser)loadMemberList();
+    });
+  });
+}
+
 $("loginSubmit").onclick=function(){
   var id=$("loginId").value.trim(),pw=$("loginPw").value;
   if(!id||!pw){alert("아이디와 비밀번호를 입력하세요");return}
@@ -170,23 +270,134 @@ $("loginSubmit").onclick=function(){
       throw err;
     })
     .then(function(cred){
-      curUser=id;localStorage.setItem("psq2curuser",id);
-      $("loginModal").style.display="none";
-      updateAuthUI();
+      return afterAuthSuccess(id,cred.user.uid).then(function(){
+        $("loginModal").style.display="none";
+      });
     })
     .catch(function(err){
       var m="로그인에 실패했습니다";
       if(err&&(err.code==="auth/invalid-credential"||err.code==="auth/wrong-password"))m="비밀번호가 일치하지 않습니다";
       else if(err&&err.code==="auth/weak-password")m="비밀번호는 6자 이상이어야 합니다";
       else if(err&&err.code==="auth/network-request-failed")m="네트워크 연결을 확인하세요";
+      else if(err&&err.code==="app/disabled")m=err.message;
       alert(m);
     })
     .then(function(){btn.disabled=false;btn.textContent="로그인";updateAuthUI()});
 };
+
 updateAuthUI();
+renderMode();
 if(fbAuth)fbAuth.onAuthStateChanged(function(u){
-  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");updateAuthUI();}
+  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");isAdminUser=false;updateAuthUI();renderMode();}
 });
+
+// ---------------- 관리자 패널 ----------------
+if($("adminChangePwBtn"))$("adminChangePwBtn").onclick=function(){
+  var oldPw=$("adminOldPw").value,newPw=$("adminNewPw").value;
+  var msg=$("adminPwMsg");
+  if(!oldPw||!newPw){msg.textContent="현재/새 비밀번호를 모두 입력하세요";return}
+  if(newPw.length<6){msg.textContent="새 비밀번호는 6자 이상이어야 합니다";return}
+  if(!fbAuth||!fbAuth.currentUser){msg.textContent="로그인 정보가 없습니다";return}
+  msg.textContent="변경 중…";
+  var credential=firebase.auth.EmailAuthProvider.credential(fbAuth.currentUser.email,oldPw);
+  fbAuth.currentUser.reauthenticateWithCredential(credential)
+    .then(function(){return fbAuth.currentUser.updatePassword(newPw)})
+    .then(function(){
+      msg.textContent="비밀번호가 변경됐습니다";
+      $("adminOldPw").value="";$("adminNewPw").value="";
+    })
+    .catch(function(err){
+      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))msg.textContent="현재 비밀번호가 일치하지 않습니다";
+      else msg.textContent="변경 실패: "+(err&&err.message?err.message:"오류");
+    });
+};
+
+var secondaryAuth=null;
+function getSecondaryAuth(){
+  if(secondaryAuth)return secondaryAuth;
+  var app2=null;
+  for(var i=0;i<firebase.apps.length;i++){if(firebase.apps[i].name==="Secondary")app2=firebase.apps[i]}
+  if(!app2)app2=firebase.initializeApp(FIREBASE_CONFIG,"Secondary");
+  secondaryAuth=firebase.auth(app2);
+  return secondaryAuth;
+}
+
+if($("adminAddMemberBtn"))$("adminAddMemberBtn").onclick=function(){
+  var newId=$("adminNewId").value.trim(),newPw=$("adminNewMemberPw").value;
+  var msg=$("adminAddMsg");
+  if(!newId||!newPw){msg.textContent="아이디와 초기 비밀번호를 입력하세요";return}
+  if(newPw.length<6){msg.textContent="초기 비밀번호는 6자 이상이어야 합니다";return}
+  var email=idToEmail(newId);
+  if(email.length>80){msg.textContent="아이디가 너무 깁니다";return}
+  msg.textContent="추가 중…";
+  var aux=getSecondaryAuth();
+  aux.createUserWithEmailAndPassword(email,newPw).then(function(cred2){
+    var newUid=cred2.user.uid;
+    return db.collection("users").doc(newUid).set({
+      name:newId,disabled:false,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+      lastLogin:null
+    },{merge:true}).then(function(){return aux.signOut()});
+  }).then(function(){
+    msg.textContent='"'+newId+'" 계정을 추가했습니다';
+    $("adminNewId").value="";$("adminNewMemberPw").value="";
+    loadMemberList();
+  }).catch(function(err){
+    if(err&&err.code==="auth/email-already-in-use")msg.textContent="이미 존재하는 아이디입니다";
+    else if(err&&err.code==="auth/weak-password")msg.textContent="초기 비밀번호는 6자 이상이어야 합니다";
+    else msg.textContent="추가 실패: "+(err&&err.message?err.message:"오류");
+  });
+};
+
+function fmtDate(ts){
+  if(!ts)return "기록 없음";
+  try{
+    var d=ts.toDate?ts.toDate():new Date(ts);
+    var pad=function(n){return (n<10?"0":"")+n};
+    return d.getFullYear()+"."+(d.getMonth()+1)+"."+d.getDate()+" "+pad(d.getHours())+":"+pad(d.getMinutes());
+  }catch(e){return "기록 없음"}
+}
+
+function loadMemberList(){
+  var list=$("adminMemberList");
+  if(!db){list.innerHTML='<div class="admin-sub">DB 연결 안 됨</div>';return}
+  list.innerHTML='<div class="admin-sub">불러오는 중…</div>';
+  db.collection("users").get().then(function(snap){
+    var rows=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      rows.push({uid:doc.id,name:d.name||"(이름 없음)",lastLogin:d.lastLogin,disabled:!!d.disabled,isAdmin:!!d.isAdmin});
+    });
+    rows.sort(function(a,b){return (a.name||"").localeCompare(b.name||"")});
+    $("adminMemberCount").textContent="("+rows.length+"명)";
+    if(!rows.length){list.innerHTML='<div class="admin-sub">등록된 회원이 없습니다</div>';return}
+    list.innerHTML="";
+    rows.forEach(function(r){
+      var row=document.createElement("div");
+      row.className="admin-row"+(r.disabled?" is-disabled":"");
+      var who=document.createElement("div");
+      who.className="who";
+      var b=document.createElement("b");
+      b.textContent=r.name+(r.isAdmin?" (관리자)":"")+(r.disabled?" · 비활성":"");
+      var span=document.createElement("span");
+      span.textContent="마지막 접속: "+fmtDate(r.lastLogin);
+      who.appendChild(b);who.appendChild(span);
+      row.appendChild(who);
+      if(!r.isAdmin){
+        var btn=document.createElement("button");
+        btn.type="button";
+        btn.textContent=r.disabled?"활성화":"삭제(비활성화)";
+        btn.onclick=function(){
+          db.collection("users").doc(r.uid).set({disabled:!r.disabled},{merge:true}).then(loadMemberList);
+        };
+        row.appendChild(btn);
+      }
+      list.appendChild(row);
+    });
+  }).catch(function(err){
+    list.innerHTML='<div class="admin-sub">불러오기 실패: '+(err&&err.message?err.message:"권한 없음")+'</div>';
+  });
+}
 </script>
 </body>
 </html>
