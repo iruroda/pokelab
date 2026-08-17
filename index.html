@@ -13,6 +13,7 @@
     --sub:#6b6b6b;
     --border:#dcdcdc;
     --border-strong:#111111;
+    --btn-dark:#595959;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -62,11 +63,11 @@
     text-decoration:none;
     text-align:center;
     line-height:1.4;
-    transition:background .15s ease,color .15s ease,transform .1s ease;
+    transition:background .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;
   }
   .nav-btn:active{transform:scale(0.98)}
   @media (hover:hover){
-    .nav-btn:hover{background:var(--text);color:#fff}
+    .nav-btn:hover{background:var(--btn-dark);border-color:var(--btn-dark);color:#fff}
   }
   footer{
     margin-top:auto;
@@ -81,7 +82,8 @@
     color:var(--sub);
     min-height:1em;
   }
-  #loginBtn{
+  .footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  #loginBtn,#userChangePwBtn,#userDeleteBtn{
     padding:9px 22px;
     border:1px solid var(--border);
     border-radius:999px;
@@ -92,14 +94,14 @@
     cursor:pointer;
     font-family:inherit;
   }
-  #loginBtn:hover{border-color:var(--border-strong);color:var(--text)}
+  #loginBtn:hover,#userChangePwBtn:hover,#userDeleteBtn:hover{border-color:var(--border-strong);color:var(--text)}
 
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:10;padding:24px}
   .modal .box{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
   .modal h2{font-size:17px;margin:0 0 16px;font-weight:700;color:var(--text)}
   .modal input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:11px 12px;margin-bottom:10px;outline:none;font-family:inherit}
   .modal input:focus{border-color:var(--border-strong)}
-  .modal button.primary{margin-top:6px;background:var(--text);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit}
+  .modal button.primary{margin-top:6px;background:var(--btn-dark);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit}
   .modal button.secondary{background:transparent;border:none;color:var(--sub);margin-top:10px;font-size:13px;cursor:pointer;width:100%;font-family:inherit}
 
   #adminPanel{display:none;width:100%;max-width:480px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:6vh 24px 32px;margin:0 auto}
@@ -108,9 +110,10 @@
   .admin-card h3{margin:0 0 12px;font-size:.95rem;font-weight:700}
   .admin-card input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;margin-bottom:8px;outline:none;font-family:inherit}
   .admin-card input:focus{border-color:var(--border-strong)}
-  .primary-btn{background:var(--text);border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:4px}
+  .primary-btn{background:var(--btn-dark);border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:4px}
   .admin-msg{font-size:.78rem;color:var(--sub);margin-top:8px;min-height:1em}
   .admin-note{font-size:.72rem;color:var(--sub);margin-bottom:12px;line-height:1.5}
+  .admin-note.danger{color:#d32f2f}
   .admin-sub{font-size:.78rem;color:var(--sub);font-weight:400}
   .admin-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto}
   .admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px}
@@ -134,15 +137,19 @@
   </nav>
   <footer>
     <div id="greet"></div>
-    <button id="loginBtn" type="button">로그인</button>
+    <div class="footer-actions">
+      <button id="userChangePwBtn" type="button" style="display:none">비밀번호 변경</button>
+      <button id="userDeleteBtn" type="button" style="display:none">계정 삭제</button>
+      <button id="loginBtn" type="button">로그인</button>
+    </div>
   </footer>
 </div>
 
 <div id="adminPanel">
-  <h1>회원 관리</h1>
+  <h1>계정 관리</h1>
 
   <section class="admin-card">
-    <h3>내 비밀번호 변경</h3>
+    <h3>관리자 비밀번호 변경</h3>
     <input id="adminOldPw" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
     <input id="adminNewPw" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
     <button class="primary-btn" id="adminChangePwBtn" type="button">비밀번호 변경</button>
@@ -150,21 +157,19 @@
   </section>
 
   <section class="admin-card">
-    <h3>회원 추가</h3>
-    <input id="adminNewId" type="text" placeholder="새 회원 아이디" autocomplete="off">
+    <h3>계정 추가</h3>
+    <input id="adminNewId" type="text" placeholder="새 계정 아이디" autocomplete="off">
     <input id="adminNewMemberPw" type="password" placeholder="초기 비밀번호 (6자 이상)" autocomplete="new-password">
-    <button class="primary-btn" id="adminAddMemberBtn" type="button">회원 추가</button>
+    <button class="primary-btn" id="adminAddMemberBtn" type="button">계정 추가</button>
     <div class="admin-msg" id="adminAddMsg"></div>
   </section>
 
   <section class="admin-card">
-    <h3>회원 목록 <span id="adminMemberCount" class="admin-sub"></span></h3>
-    <div class="admin-note">회원 비밀번호는 본인만 변경할 수 있어요(관리자가 강제로 바꿔줄 수는 없는 구조입니다). "삭제"는 실제 계정 삭제가 아니라 로그인을 막는 비활성화이며, 다시 "활성화"로 되돌릴 수 있습니다.</div>
+    <h3>계정 목록 <span id="adminMemberCount" class="admin-sub"></span></h3>
     <div id="adminMemberList" class="admin-list"><div class="admin-sub">불러오는 중…</div></div>
   </section>
 
   <footer class="admin-footer">
-    <div id="adminGreet" class="admin-sub"></div>
     <button id="adminLogoutBtn" type="button">로그아웃</button>
   </footer>
 </div>
@@ -176,6 +181,28 @@
     <input id="loginPw" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
     <button class="primary" id="loginSubmit" type="button">로그인</button>
     <button class="secondary" id="loginCancel" type="button">닫기</button>
+  </div>
+</div>
+
+<div id="pwModal" class="modal">
+  <div class="box">
+    <h2>비밀번호 변경</h2>
+    <input id="pwOldInput" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
+    <input id="pwNewInput" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
+    <button class="primary" id="pwSubmit" type="button">변경</button>
+    <button class="secondary" id="pwCancel" type="button">닫기</button>
+    <div class="admin-msg" id="pwMsg"></div>
+  </div>
+</div>
+
+<div id="delModal" class="modal">
+  <div class="box">
+    <h2>계정 삭제</h2>
+    <div class="admin-note danger">계정이 영구적으로 삭제됩니다. 되돌릴 수 없습니다.</div>
+    <input id="delPwInput" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
+    <button class="primary" id="delSubmit" type="button">삭제</button>
+    <button class="secondary" id="delCancel" type="button">닫기</button>
+    <div class="admin-msg" id="delMsg"></div>
   </div>
 </div>
 
@@ -203,7 +230,8 @@ var isAdminUser=false;
 function updateAuthUI(){
   $("loginBtn").textContent=curUser?"로그아웃":"로그인";
   $("greet").textContent=curUser?curUser+"님, 안녕하세요.":"";
-  if($("adminGreet"))$("adminGreet").textContent=curUser?curUser+"님 (관리자)":"";
+  if($("userChangePwBtn"))$("userChangePwBtn").style.display=curUser?"inline-block":"none";
+  if($("userDeleteBtn"))$("userDeleteBtn").style.display=curUser?"inline-block":"none";
 }
 function renderMode(){
   var showAdmin=!!(curUser&&isAdminUser);
@@ -227,7 +255,68 @@ if($("adminLogoutBtn"))$("adminLogoutBtn").onclick=doLogout;
 $("loginCancel").onclick=function(){$("loginModal").style.display="none"};
 $("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal").style.display="none"};
 
-// 로그인/회원가입 성공 후: Firestore에 이름·마지막 접속 기록, 비활성 계정 차단, 관리자 여부 판별
+// 일반 사용자용: 내 비밀번호 변경
+if($("userChangePwBtn"))$("userChangePwBtn").onclick=function(){
+  $("pwOldInput").value="";$("pwNewInput").value="";$("pwMsg").textContent="";
+  $("pwModal").style.display="flex";
+};
+if($("pwCancel"))$("pwCancel").onclick=function(){$("pwModal").style.display="none"};
+if($("pwModal"))$("pwModal").onclick=function(e){if(e.target===$("pwModal"))$("pwModal").style.display="none"};
+if($("pwSubmit"))$("pwSubmit").onclick=function(){
+  var oldPw=$("pwOldInput").value,newPw=$("pwNewInput").value;
+  var msg=$("pwMsg");
+  if(!oldPw||!newPw){msg.textContent="현재/새 비밀번호를 모두 입력하세요";return}
+  if(newPw.length<6){msg.textContent="새 비밀번호는 6자 이상이어야 합니다";return}
+  if(!fbAuth||!fbAuth.currentUser){msg.textContent="로그인 정보가 없습니다";return}
+  msg.textContent="변경 중…";
+  var credential=firebase.auth.EmailAuthProvider.credential(fbAuth.currentUser.email,oldPw);
+  fbAuth.currentUser.reauthenticateWithCredential(credential)
+    .then(function(){return fbAuth.currentUser.updatePassword(newPw)})
+    .then(function(){
+      msg.textContent="비밀번호가 변경됐습니다";
+      setTimeout(function(){$("pwModal").style.display="none"},900);
+    })
+    .catch(function(err){
+      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))msg.textContent="현재 비밀번호가 일치하지 않습니다";
+      else msg.textContent="변경 실패: "+(err&&err.message?err.message:"오류");
+    });
+};
+
+// 일반 사용자용: 계정 삭제 (본인 계정만, 실제 Firebase 계정 삭제)
+if($("userDeleteBtn"))$("userDeleteBtn").onclick=function(){
+  $("delPwInput").value="";$("delMsg").textContent="";
+  $("delModal").style.display="flex";
+};
+if($("delCancel"))$("delCancel").onclick=function(){$("delModal").style.display="none"};
+if($("delModal"))$("delModal").onclick=function(e){if(e.target===$("delModal"))$("delModal").style.display="none"};
+if($("delSubmit"))$("delSubmit").onclick=function(){
+  var pw=$("delPwInput").value;
+  var msg=$("delMsg");
+  if(!pw){msg.textContent="비밀번호를 입력하세요";return}
+  if(!fbAuth||!fbAuth.currentUser){msg.textContent="로그인 정보가 없습니다";return}
+  msg.textContent="삭제 중…";
+  var user=fbAuth.currentUser;
+  var credential=firebase.auth.EmailAuthProvider.credential(user.email,pw);
+  user.reauthenticateWithCredential(credential)
+    .then(function(){
+      var uid=user.uid;
+      var cleanup=db?db.collection("users").doc(uid).delete().catch(function(){}):Promise.resolve();
+      return cleanup.then(function(){return user.delete()});
+    })
+    .then(function(){
+      $("delModal").style.display="none";
+      curUser=null;localStorage.removeItem("psq2curuser");
+      isAdminUser=false;
+      updateAuthUI();renderMode();
+      alert("계정이 삭제됐습니다");
+    })
+    .catch(function(err){
+      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))msg.textContent="비밀번호가 일치하지 않습니다";
+      else msg.textContent="삭제 실패: "+(err&&err.message?err.message:"오류");
+    });
+};
+
+// 로그인/계정 생성 성공 후: Firestore에 이름·마지막 접속 기록, 비활성 계정 차단, 관리자 여부 판별
 function afterAuthSuccess(id, uid){
   if(!db){
     curUser=id;localStorage.setItem("psq2curuser",id);
@@ -369,8 +458,8 @@ function loadMemberList(){
       rows.push({uid:doc.id,name:d.name||"(이름 없음)",lastLogin:d.lastLogin,disabled:!!d.disabled,isAdmin:!!d.isAdmin});
     });
     rows.sort(function(a,b){return (a.name||"").localeCompare(b.name||"")});
-    $("adminMemberCount").textContent="("+rows.length+"명)";
-    if(!rows.length){list.innerHTML='<div class="admin-sub">등록된 회원이 없습니다</div>';return}
+    $("adminMemberCount").textContent="("+rows.length+"개)";
+    if(!rows.length){list.innerHTML='<div class="admin-sub">등록된 계정이 없습니다</div>';return}
     list.innerHTML="";
     rows.forEach(function(r){
       var row=document.createElement("div");
@@ -398,6 +487,31 @@ function loadMemberList(){
     list.innerHTML='<div class="admin-sub">불러오기 실패: '+(err&&err.message?err.message:"권한 없음")+'</div>';
   });
 }
+
+// PC 환경: 팝업(모달)이 열려있을 때 ESC로 닫기, Enter로 확인 버튼 실행
+var MODAL_KEYS=[
+  {id:"loginModal",confirm:"loginSubmit",cancel:"loginCancel"},
+  {id:"pwModal",confirm:"pwSubmit",cancel:"pwCancel"},
+  {id:"delModal",confirm:"delSubmit",cancel:"delCancel"}
+];
+document.addEventListener("keydown",function(e){
+  for(var i=0;i<MODAL_KEYS.length;i++){
+    var m=MODAL_KEYS[i];
+    var el=$(m.id);
+    if(el&&el.style.display==="flex"){
+      if(e.key==="Escape"){
+        e.preventDefault();
+        el.style.display="none";
+      }else if(e.key==="Enter"){
+        if(document.activeElement&&document.activeElement.id===m.cancel)return;
+        e.preventDefault();
+        var btn=$(m.confirm);
+        if(btn&&!btn.disabled)btn.click();
+      }
+      return;
+    }
+  }
+});
 </script>
 </body>
 </html>
