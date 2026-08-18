@@ -139,6 +139,7 @@
     <div class="footer-actions">
       <button id="userChangePwBtn" type="button" style="display:none">비밀번호 변경</button>
       <button id="userDeleteBtn" type="button" style="display:none">계정 삭제</button>
+      <button id="adminSettingsBtn" type="button" style="display:none">계정 설정</button>
       <button id="loginBtn" type="button">로그인</button>
     </div>
   </footer>
@@ -161,6 +162,7 @@
 
   <footer class="admin-footer">
     <button id="adminChangePwBtn" type="button">비밀번호 변경</button>
+    <button id="adminMainBtn" type="button">메인으로</button>
     <button id="adminLogoutBtn" type="button">로그아웃</button>
   </footer>
 </div>
@@ -215,15 +217,17 @@ function idToEmail(id){
 var $=function(id){return document.getElementById(id)};
 var curUser=localStorage.getItem("psq2curuser")||null;
 var isAdminUser=false;
+var adminViewOpen=false;
 
 function updateAuthUI(){
   $("loginBtn").textContent=curUser?"로그아웃":"로그인";
   $("greet").textContent=curUser?curUser+"님, 안녕하세요.":"";
   if($("userChangePwBtn"))$("userChangePwBtn").style.display=curUser?"inline-block":"none";
-  if($("userDeleteBtn"))$("userDeleteBtn").style.display=curUser?"inline-block":"none";
+  if($("userDeleteBtn"))$("userDeleteBtn").style.display=(curUser&&!isAdminUser)?"inline-block":"none";
+  if($("adminSettingsBtn"))$("adminSettingsBtn").style.display=(curUser&&isAdminUser)?"inline-block":"none";
 }
 function renderMode(){
-  var showAdmin=!!(curUser&&isAdminUser);
+  var showAdmin=!!(curUser&&isAdminUser&&adminViewOpen);
   $("page").style.display=showAdmin?"none":"flex";
   $("adminPanel").style.display=showAdmin?"flex":"none";
 }
@@ -231,6 +235,7 @@ function doLogout(){
   if(fbAuth)fbAuth.signOut();
   curUser=null;localStorage.removeItem("psq2curuser");
   isAdminUser=false;
+  adminViewOpen=false;
   updateAuthUI();renderMode();
 }
 $("loginBtn").onclick=function(){
@@ -242,6 +247,15 @@ $("loginBtn").onclick=function(){
   }
 };
 if($("adminLogoutBtn"))$("adminLogoutBtn").onclick=doLogout;
+if($("adminSettingsBtn"))$("adminSettingsBtn").onclick=function(){
+  adminViewOpen=true;
+  renderMode();
+  loadMemberList();
+};
+if($("adminMainBtn"))$("adminMainBtn").onclick=function(){
+  adminViewOpen=false;
+  renderMode();
+};
 $("loginCancel").onclick=function(){$("loginModal").style.display="none"};
 $("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal").style.display="none"};
 
@@ -347,7 +361,6 @@ function afterAuthSuccess(id, uid){
       isAdminUser=wasAdmin;
       curUser=id;localStorage.setItem("psq2curuser",id);
       updateAuthUI();renderMode();
-      if(isAdminUser)loadMemberList();
     });
   });
 }
@@ -382,10 +395,21 @@ $("loginSubmit").onclick=function(){
     });
 };
 
+// 다른 서브페이지에서 이미 로그인된 상태로 돌아왔을 때: 이 페이지의 JS 상태(isAdminUser)는
+// 새로고침될 때마다 초기화되므로, Firestore에서 관리자 여부를 다시 확인해 계정 설정 버튼을 정확히 표시
+function refreshAdminFlag(uid){
+  if(!db)return Promise.resolve();
+  return db.collection("users").doc(uid).get().then(function(doc){
+    isAdminUser=!!(doc.exists&&doc.data().isAdmin===true);
+    updateAuthUI();renderMode();
+  }).catch(function(){});
+}
+
 updateAuthUI();
 renderMode();
 if(fbAuth)fbAuth.onAuthStateChanged(function(u){
-  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");isAdminUser=false;updateAuthUI();renderMode();}
+  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");isAdminUser=false;adminViewOpen=false;updateAuthUI();renderMode();}
+  else if(u&&curUser){refreshAdminFlag(u.uid);}
 });
 
 // ---------------- 관리자 패널 ----------------
