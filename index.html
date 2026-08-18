@@ -179,6 +179,7 @@
     <h2 id="loginTitle">로그인</h2>
     <input id="loginId" type="text" name="username" placeholder="아이디" autocomplete="username">
     <input id="loginPw" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
+    <div class="admin-msg" id="loginMsg"></div>
     <button class="primary" id="loginSubmit" type="button">로그인</button>
     <button class="secondary" id="loginCancel" type="button">닫기</button>
   </div>
@@ -247,7 +248,7 @@ function doLogout(){
 $("loginBtn").onclick=function(){
   if(curUser){doLogout()}
   else{
-    $("loginId").value="";$("loginPw").value="";
+    $("loginId").value="";$("loginPw").value="";$("loginMsg").textContent="";
     $("loginModal").style.display="flex";
   }
 };
@@ -347,29 +348,27 @@ function afterAuthSuccess(id, uid){
 
 $("loginSubmit").onclick=function(){
   var id=$("loginId").value.trim(),pw=$("loginPw").value;
-  if(!id||!pw){alert("아이디와 비밀번호를 입력하세요");return}
-  if(!fbAuth){alert("서버 연결이 안 돼 로그인할 수 없습니다");return}
-  if(pw.length<6){alert("비밀번호는 6자 이상이어야 합니다");return}
+  var msg=$("loginMsg");
+  msg.textContent="";
+  if(!id||!pw){msg.textContent="아이디와 비밀번호를 입력하세요.";return}
+  if(!fbAuth){msg.textContent="서버 연결이 안 돼 로그인할 수 없습니다.";return}
+  if(pw.length<6){msg.textContent="비밀번호는 6자 이상이어야 합니다.";return}
   var email=idToEmail(id);
-  if(email.length>80){alert("아이디가 너무 깁니다");return}
+  if(email.length>80){msg.textContent="아이디가 너무 깁니다.";return}
   var btn=$("loginSubmit");btn.disabled=true;btn.textContent="로그인 중…";
-  fbAuth.createUserWithEmailAndPassword(email,pw)
-    .catch(function(err){
-      if(err&&err.code==="auth/email-already-in-use")return fbAuth.signInWithEmailAndPassword(email,pw);
-      throw err;
-    })
+  fbAuth.signInWithEmailAndPassword(email,pw)
     .then(function(cred){
       return afterAuthSuccess(id,cred.user.uid).then(function(){
         $("loginModal").style.display="none";
       });
     })
     .catch(function(err){
-      var m="로그인에 실패했습니다";
-      if(err&&(err.code==="auth/invalid-credential"||err.code==="auth/wrong-password"))m="비밀번호가 일치하지 않습니다";
-      else if(err&&err.code==="auth/weak-password")m="비밀번호는 6자 이상이어야 합니다";
-      else if(err&&err.code==="auth/network-request-failed")m="네트워크 연결을 확인하세요";
+      var m="로그인에 실패했습니다.";
+      if(err&&err.code==="auth/user-not-found")m="존재하지 않는 아이디입니다.";
+      else if(err&&(err.code==="auth/invalid-credential"||err.code==="auth/wrong-password"))m="비밀번호가 일치하지 않습니다.";
+      else if(err&&err.code==="auth/network-request-failed")m="네트워크 연결을 확인하세요.";
       else if(err&&err.code==="app/disabled")m=err.message;
-      alert(m);
+      msg.textContent=m;
     })
     .then(function(){btn.disabled=false;btn.textContent="로그인";updateAuthUI()});
 };
