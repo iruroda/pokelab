@@ -111,7 +111,6 @@
   .admin-card input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;margin-bottom:8px;outline:none;font-family:inherit}
   .admin-card input:focus{border-color:var(--border-strong)}
   .primary-btn{background:var(--btn-dark);border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:4px}
-  .admin-msg{font-size:.78rem;color:var(--sub);margin-top:8px;min-height:1em}
   .admin-note{font-size:.72rem;color:var(--sub);margin-bottom:12px;line-height:1.5}
   .admin-note.danger{color:#d32f2f}
   .admin-sub{font-size:.78rem;color:var(--sub);font-weight:400}
@@ -123,7 +122,7 @@
   .admin-row button{border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 10px;font-size:.72rem;cursor:pointer;font-family:inherit;flex-shrink:0}
   .admin-row button:hover{border-color:var(--border-strong)}
   .admin-row.is-disabled{opacity:.55}
-  .admin-footer{margin-top:auto;padding-top:6vh;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .admin-footer{margin-top:auto;padding-top:6vh;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px}
   .admin-footer button{padding:9px 22px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--sub);font-size:.82rem;font-weight:500;cursor:pointer;font-family:inherit}
   .admin-footer button:hover{border-color:var(--border-strong);color:var(--text)}
 </style>
@@ -149,27 +148,19 @@
   <h1>계정 관리</h1>
 
   <section class="admin-card">
-    <h3>관리자 비밀번호 변경</h3>
-    <input id="adminOldPw" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
-    <input id="adminNewPw" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
-    <button class="primary-btn" id="adminChangePwBtn" type="button">비밀번호 변경</button>
-    <div class="admin-msg" id="adminPwMsg"></div>
-  </section>
-
-  <section class="admin-card">
-    <h3>계정 추가</h3>
-    <input id="adminNewId" type="text" placeholder="새 계정 아이디" autocomplete="off">
-    <input id="adminNewMemberPw" type="password" placeholder="초기 비밀번호 (6자 이상)" autocomplete="new-password">
-    <button class="primary-btn" id="adminAddMemberBtn" type="button">계정 추가</button>
-    <div class="admin-msg" id="adminAddMsg"></div>
-  </section>
-
-  <section class="admin-card">
     <h3>계정 목록 <span id="adminMemberCount" class="admin-sub"></span></h3>
     <div id="adminMemberList" class="admin-list"><div class="admin-sub">불러오는 중…</div></div>
   </section>
 
+  <section class="admin-card">
+    <h3>계정 생성</h3>
+    <input id="adminNewId" type="text" placeholder="새 계정 아이디" autocomplete="off">
+    <input id="adminNewMemberPw" type="password" placeholder="초기 비밀번호 (6자 이상)" autocomplete="new-password">
+    <button class="primary-btn" id="adminAddMemberBtn" type="button">계정 생성</button>
+  </section>
+
   <footer class="admin-footer">
+    <button id="adminChangePwBtn" type="button">비밀번호 변경</button>
     <button id="adminLogoutBtn" type="button">로그아웃</button>
   </footer>
 </div>
@@ -179,7 +170,6 @@
     <h2 id="loginTitle">로그인</h2>
     <input id="loginId" type="text" name="username" placeholder="아이디" autocomplete="username">
     <input id="loginPw" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
-    <div class="admin-msg" id="loginMsg"></div>
     <button class="primary" id="loginSubmit" type="button">로그인</button>
     <button class="secondary" id="loginCancel" type="button">닫기</button>
   </div>
@@ -192,7 +182,6 @@
     <input id="pwNewInput" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
     <button class="primary" id="pwSubmit" type="button">변경</button>
     <button class="secondary" id="pwCancel" type="button">닫기</button>
-    <div class="admin-msg" id="pwMsg"></div>
   </div>
 </div>
 
@@ -203,7 +192,6 @@
     <input id="delPwInput" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
     <button class="primary" id="delSubmit" type="button">삭제</button>
     <button class="secondary" id="delCancel" type="button">닫기</button>
-    <div class="admin-msg" id="delMsg"></div>
   </div>
 </div>
 
@@ -248,7 +236,8 @@ function doLogout(){
 $("loginBtn").onclick=function(){
   if(curUser){doLogout()}
   else{
-    $("loginId").value="";$("loginPw").value="";$("loginMsg").textContent="";
+    $("loginId").value="";$("loginPw").value="";
+    $("loginSubmit").disabled=false;$("loginSubmit").textContent="로그인";
     $("loginModal").style.display="flex";
   }
 };
@@ -258,44 +247,58 @@ $("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal"
 
 // 일반 사용자용: 내 비밀번호 변경
 if($("userChangePwBtn"))$("userChangePwBtn").onclick=function(){
-  $("pwOldInput").value="";$("pwNewInput").value="";$("pwMsg").textContent="";
+  $("pwOldInput").value="";$("pwNewInput").value="";
+  $("pwSubmit").disabled=false;$("pwSubmit").textContent="변경";
   $("pwModal").style.display="flex";
 };
 if($("pwCancel"))$("pwCancel").onclick=function(){$("pwModal").style.display="none"};
 if($("pwModal"))$("pwModal").onclick=function(e){if(e.target===$("pwModal"))$("pwModal").style.display="none"};
 if($("pwSubmit"))$("pwSubmit").onclick=function(){
   var oldPw=$("pwOldInput").value,newPw=$("pwNewInput").value;
-  var msg=$("pwMsg");
-  if(!oldPw||!newPw){msg.textContent="현재/새 비밀번호를 모두 입력하세요";return}
-  if(newPw.length<6){msg.textContent="새 비밀번호는 6자 이상이어야 합니다";return}
-  if(!fbAuth||!fbAuth.currentUser){msg.textContent="로그인 정보가 없습니다";return}
-  msg.textContent="변경 중…";
+  var btn=$("pwSubmit");
+  var showErr=function(text){
+    btn.disabled=true;btn.textContent=text;
+    setTimeout(function(){btn.disabled=false;btn.textContent="변경"},1600);
+  };
+  if(!oldPw||!newPw){showErr("현재/새 비밀번호를 모두 입력하세요.");return}
+  if(newPw.length<6){showErr("새 비밀번호는 6자 이상이어야 합니다.");return}
+  if(!fbAuth||!fbAuth.currentUser){showErr("로그인 정보가 없습니다.");return}
+  btn.disabled=true;btn.textContent="변경 중…";
   var credential=firebase.auth.EmailAuthProvider.credential(fbAuth.currentUser.email,oldPw);
   fbAuth.currentUser.reauthenticateWithCredential(credential)
     .then(function(){return fbAuth.currentUser.updatePassword(newPw)})
     .then(function(){
-      msg.textContent="비밀번호가 변경됐습니다";
-      setTimeout(function(){$("pwModal").style.display="none"},900);
+      btn.textContent="변경되었습니다.";
+      $("pwOldInput").value="";$("pwNewInput").value="";
+      setTimeout(function(){
+        $("pwModal").style.display="none";
+        btn.disabled=false;btn.textContent="변경";
+      },900);
     })
     .catch(function(err){
-      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))msg.textContent="현재 비밀번호가 일치하지 않습니다";
-      else msg.textContent="변경 실패: "+(err&&err.message?err.message:"오류");
+      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))showErr("현재 비밀번호가 일치하지 않습니다.");
+      else showErr("변경에 실패했습니다.");
     });
 };
 
 // 일반 사용자용: 계정 삭제 (본인 계정만, 실제 Firebase 계정 삭제)
 if($("userDeleteBtn"))$("userDeleteBtn").onclick=function(){
-  $("delPwInput").value="";$("delMsg").textContent="";
+  $("delPwInput").value="";
+  $("delSubmit").disabled=false;$("delSubmit").textContent="삭제";
   $("delModal").style.display="flex";
 };
 if($("delCancel"))$("delCancel").onclick=function(){$("delModal").style.display="none"};
 if($("delModal"))$("delModal").onclick=function(e){if(e.target===$("delModal"))$("delModal").style.display="none"};
 if($("delSubmit"))$("delSubmit").onclick=function(){
   var pw=$("delPwInput").value;
-  var msg=$("delMsg");
-  if(!pw){msg.textContent="비밀번호를 입력하세요";return}
-  if(!fbAuth||!fbAuth.currentUser){msg.textContent="로그인 정보가 없습니다";return}
-  msg.textContent="삭제 중…";
+  var btn=$("delSubmit");
+  var showErr=function(text){
+    btn.disabled=true;btn.textContent=text;
+    setTimeout(function(){btn.disabled=false;btn.textContent="삭제"},1600);
+  };
+  if(!pw){showErr("비밀번호를 입력하세요.");return}
+  if(!fbAuth||!fbAuth.currentUser){showErr("로그인 정보가 없습니다.");return}
+  btn.disabled=true;btn.textContent="삭제 중…";
   var user=fbAuth.currentUser;
   var credential=firebase.auth.EmailAuthProvider.credential(user.email,pw);
   user.reauthenticateWithCredential(credential)
@@ -305,15 +308,18 @@ if($("delSubmit"))$("delSubmit").onclick=function(){
       return cleanup.then(function(){return user.delete()});
     })
     .then(function(){
-      $("delModal").style.display="none";
-      curUser=null;localStorage.removeItem("psq2curuser");
-      isAdminUser=false;
-      updateAuthUI();renderMode();
-      alert("계정이 삭제됐습니다");
+      btn.textContent="삭제되었습니다.";
+      setTimeout(function(){
+        $("delModal").style.display="none";
+        btn.disabled=false;btn.textContent="삭제";
+        curUser=null;localStorage.removeItem("psq2curuser");
+        isAdminUser=false;
+        updateAuthUI();renderMode();
+      },900);
     })
     .catch(function(err){
-      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))msg.textContent="비밀번호가 일치하지 않습니다";
-      else msg.textContent="삭제 실패: "+(err&&err.message?err.message:"오류");
+      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))showErr("비밀번호가 일치하지 않습니다.");
+      else showErr("삭제에 실패했습니다.");
     });
 };
 
@@ -348,29 +354,32 @@ function afterAuthSuccess(id, uid){
 
 $("loginSubmit").onclick=function(){
   var id=$("loginId").value.trim(),pw=$("loginPw").value;
-  var msg=$("loginMsg");
-  msg.textContent="";
-  if(!id||!pw){msg.textContent="아이디와 비밀번호를 입력하세요.";return}
-  if(!fbAuth){msg.textContent="서버 연결이 안 돼 로그인할 수 없습니다.";return}
-  if(pw.length<6){msg.textContent="비밀번호는 6자 이상이어야 합니다.";return}
+  var btn=$("loginSubmit");
+  var showErr=function(text){
+    btn.disabled=true;btn.textContent=text;
+    setTimeout(function(){btn.disabled=false;btn.textContent="로그인"},1600);
+    updateAuthUI();
+  };
+  if(!id||!pw){showErr("아이디와 비밀번호를 입력하세요.");return}
+  if(!fbAuth){showErr("서버 연결이 안 돼 로그인할 수 없습니다.");return}
+  if(pw.length<6){showErr("비밀번호는 6자 이상이어야 합니다.");return}
   var email=idToEmail(id);
-  if(email.length>80){msg.textContent="아이디가 너무 깁니다.";return}
-  var btn=$("loginSubmit");btn.disabled=true;btn.textContent="로그인 중…";
+  if(email.length>80){showErr("아이디가 너무 깁니다.");return}
+  btn.disabled=true;btn.textContent="로그인 중…";
   fbAuth.signInWithEmailAndPassword(email,pw)
     .then(function(cred){
       return afterAuthSuccess(id,cred.user.uid).then(function(){
         $("loginModal").style.display="none";
+        btn.disabled=false;btn.textContent="로그인";
       });
     })
     .catch(function(err){
       var m="로그인에 실패했습니다.";
-      if(err&&err.code==="auth/user-not-found")m="존재하지 않는 아이디입니다.";
-      else if(err&&(err.code==="auth/invalid-credential"||err.code==="auth/wrong-password"))m="비밀번호가 일치하지 않습니다.";
+      if(err&&(err.code==="auth/user-not-found"||err.code==="auth/invalid-credential"||err.code==="auth/wrong-password"))m="계정 정보가 일치하지 않습니다.";
       else if(err&&err.code==="auth/network-request-failed")m="네트워크 연결을 확인하세요.";
       else if(err&&err.code==="app/disabled")m=err.message;
-      msg.textContent=m;
-    })
-    .then(function(){btn.disabled=false;btn.textContent="로그인";updateAuthUI()});
+      showErr(m);
+    });
 };
 
 updateAuthUI();
@@ -380,24 +389,11 @@ if(fbAuth)fbAuth.onAuthStateChanged(function(u){
 });
 
 // ---------------- 관리자 패널 ----------------
+// 관리자 자신의 비밀번호 변경도 일반 계정과 동일한 pwModal/pwSubmit 로직을 그대로 재사용
 if($("adminChangePwBtn"))$("adminChangePwBtn").onclick=function(){
-  var oldPw=$("adminOldPw").value,newPw=$("adminNewPw").value;
-  var msg=$("adminPwMsg");
-  if(!oldPw||!newPw){msg.textContent="현재/새 비밀번호를 모두 입력하세요";return}
-  if(newPw.length<6){msg.textContent="새 비밀번호는 6자 이상이어야 합니다";return}
-  if(!fbAuth||!fbAuth.currentUser){msg.textContent="로그인 정보가 없습니다";return}
-  msg.textContent="변경 중…";
-  var credential=firebase.auth.EmailAuthProvider.credential(fbAuth.currentUser.email,oldPw);
-  fbAuth.currentUser.reauthenticateWithCredential(credential)
-    .then(function(){return fbAuth.currentUser.updatePassword(newPw)})
-    .then(function(){
-      msg.textContent="비밀번호가 변경됐습니다";
-      $("adminOldPw").value="";$("adminNewPw").value="";
-    })
-    .catch(function(err){
-      if(err&&(err.code==="auth/wrong-password"||err.code==="auth/invalid-credential"))msg.textContent="현재 비밀번호가 일치하지 않습니다";
-      else msg.textContent="변경 실패: "+(err&&err.message?err.message:"오류");
-    });
+  $("pwOldInput").value="";$("pwNewInput").value="";
+  $("pwSubmit").disabled=false;$("pwSubmit").textContent="변경";
+  $("pwModal").style.display="flex";
 };
 
 var secondaryAuth=null;
@@ -412,12 +408,16 @@ function getSecondaryAuth(){
 
 if($("adminAddMemberBtn"))$("adminAddMemberBtn").onclick=function(){
   var newId=$("adminNewId").value.trim(),newPw=$("adminNewMemberPw").value;
-  var msg=$("adminAddMsg");
-  if(!newId||!newPw){msg.textContent="아이디와 초기 비밀번호를 입력하세요";return}
-  if(newPw.length<6){msg.textContent="초기 비밀번호는 6자 이상이어야 합니다";return}
+  var btn=$("adminAddMemberBtn");
+  var showErr=function(text){
+    btn.disabled=true;btn.textContent=text;
+    setTimeout(function(){btn.disabled=false;btn.textContent="계정 생성"},1600);
+  };
+  if(!newId||!newPw){showErr("아이디와 초기 비밀번호를 입력하세요.");return}
+  if(newPw.length<6){showErr("초기 비밀번호는 6자 이상이어야 합니다.");return}
   var email=idToEmail(newId);
-  if(email.length>80){msg.textContent="아이디가 너무 깁니다";return}
-  msg.textContent="추가 중…";
+  if(email.length>80){showErr("아이디가 너무 깁니다.");return}
+  btn.disabled=true;btn.textContent="생성 중…";
   var aux=getSecondaryAuth();
   aux.createUserWithEmailAndPassword(email,newPw).then(function(cred2){
     var newUid=cred2.user.uid;
@@ -427,13 +427,14 @@ if($("adminAddMemberBtn"))$("adminAddMemberBtn").onclick=function(){
       lastLogin:null
     },{merge:true}).then(function(){return aux.signOut()});
   }).then(function(){
-    msg.textContent='"'+newId+'" 계정을 추가했습니다';
+    btn.textContent="생성되었습니다.";
     $("adminNewId").value="";$("adminNewMemberPw").value="";
     loadMemberList();
+    setTimeout(function(){btn.disabled=false;btn.textContent="계정 생성"},1400);
   }).catch(function(err){
-    if(err&&err.code==="auth/email-already-in-use")msg.textContent="이미 존재하는 아이디입니다";
-    else if(err&&err.code==="auth/weak-password")msg.textContent="초기 비밀번호는 6자 이상이어야 합니다";
-    else msg.textContent="추가 실패: "+(err&&err.message?err.message:"오류");
+    if(err&&err.code==="auth/email-already-in-use")showErr("이미 존재하는 아이디입니다.");
+    else if(err&&err.code==="auth/weak-password")showErr("초기 비밀번호는 6자 이상이어야 합니다.");
+    else showErr("추가에 실패했습니다.");
   });
 };
 
@@ -454,7 +455,8 @@ function loadMemberList(){
     var rows=[];
     snap.forEach(function(doc){
       var d=doc.data();
-      rows.push({uid:doc.id,name:d.name||"(이름 없음)",lastLogin:d.lastLogin,disabled:!!d.disabled,isAdmin:!!d.isAdmin});
+      if(d.isAdmin)return;
+      rows.push({uid:doc.id,name:d.name||"(이름 없음)",lastLogin:d.lastLogin,disabled:!!d.disabled});
     });
     rows.sort(function(a,b){return (a.name||"").localeCompare(b.name||"")});
     $("adminMemberCount").textContent="("+rows.length+"개)";
@@ -466,20 +468,18 @@ function loadMemberList(){
       var who=document.createElement("div");
       who.className="who";
       var b=document.createElement("b");
-      b.textContent=r.name+(r.isAdmin?" (관리자)":"")+(r.disabled?" · 비활성":"");
+      b.textContent=r.name+(r.disabled?" · 비활성":"");
       var span=document.createElement("span");
       span.textContent="마지막 접속: "+fmtDate(r.lastLogin);
       who.appendChild(b);who.appendChild(span);
       row.appendChild(who);
-      if(!r.isAdmin){
-        var btn=document.createElement("button");
-        btn.type="button";
-        btn.textContent=r.disabled?"활성화":"삭제(비활성화)";
-        btn.onclick=function(){
-          db.collection("users").doc(r.uid).set({disabled:!r.disabled},{merge:true}).then(loadMemberList);
-        };
-        row.appendChild(btn);
-      }
+      var btn=document.createElement("button");
+      btn.type="button";
+      btn.textContent=r.disabled?"활성화":"삭제(비활성화)";
+      btn.onclick=function(){
+        db.collection("users").doc(r.uid).set({disabled:!r.disabled},{merge:true}).then(loadMemberList);
+      };
+      row.appendChild(btn);
       list.appendChild(row);
     });
   }).catch(function(err){
