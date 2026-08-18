@@ -84,7 +84,7 @@
     min-height:1em;
   }
   .footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-  #loginBtn,#userChangePwBtn,#userDeleteBtn{
+  #loginBtn,#userChangePwBtn,#userDeleteBtn,#adminSettingsBtn{
     padding:9px 22px;
     border:1px solid var(--border);
     border-radius:999px;
@@ -94,8 +94,9 @@
     font-weight:500;
     cursor:pointer;
     font-family:inherit;
+    transition:border-color .15s ease,color .15s ease;
   }
-  #loginBtn:hover,#userChangePwBtn:hover,#userDeleteBtn:hover{border-color:var(--border-strong);color:var(--text)}
+  #loginBtn:hover,#userChangePwBtn:hover,#userDeleteBtn:hover,#adminSettingsBtn:hover{border-color:var(--border-strong);color:var(--text)}
 
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:10;padding:24px}
   .modal .box{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
