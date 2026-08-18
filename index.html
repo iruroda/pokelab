@@ -104,13 +104,13 @@
   .modal button.primary{margin-top:6px;background:var(--btn-dark);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit}
   .modal button.secondary{background:transparent;border:none;color:var(--sub);margin-top:10px;font-size:13px;cursor:pointer;width:100%;font-family:inherit}
 
-  #adminPanel{display:none;width:100%;max-width:480px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:6vh 24px 32px;margin:0 auto}
-  #adminPanel h1{text-align:center;font-size:1.6rem;font-weight:800;margin:0 0 24px}
+  #adminPanel{display:none;width:100%;max-width:440px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:9vh 28px 32px;margin:0 auto}
+  #adminPanel h1{margin:0 0 6vh}
   .admin-card{border:1.5px solid var(--border-strong);border-radius:14px;padding:18px;margin-bottom:18px}
   .admin-card h3{margin:0 0 12px;font-size:.95rem;font-weight:700}
-  .admin-card input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;margin-bottom:8px;outline:none;font-family:inherit}
+  .admin-card input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:11px 12px;margin-bottom:10px;outline:none;font-family:inherit}
   .admin-card input:focus{border-color:var(--border-strong)}
-  .primary-btn{background:var(--btn-dark);border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:4px}
+  .primary-btn{background:var(--btn-dark);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:6px}
   .admin-note{font-size:.72rem;color:var(--sub);margin-bottom:12px;line-height:1.5}
   .admin-note.danger{color:#d32f2f}
   .admin-sub{font-size:.78rem;color:var(--sub);font-weight:400}
@@ -119,11 +119,13 @@
   .admin-row .who{display:flex;flex-direction:column;gap:2px}
   .admin-row .who b{font-size:.85rem}
   .admin-row .who span{font-size:.7rem;color:var(--sub)}
-  .admin-row button{border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 10px;font-size:.72rem;cursor:pointer;font-family:inherit;flex-shrink:0}
-  .admin-row button:hover{border-color:var(--border-strong)}
+  .admin-row button{border:1px solid var(--border);background:#fff;color:var(--sub);border-radius:999px;padding:6px 14px;font-size:.74rem;font-weight:500;cursor:pointer;font-family:inherit;flex-shrink:0;transition:border-color .15s ease,color .15s ease}
+  .admin-row button:hover{border-color:var(--border-strong);color:var(--text)}
   .admin-row.is-disabled{opacity:.55}
-  .admin-footer{margin-top:auto;padding-top:6vh;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px}
-  .admin-footer button{padding:9px 22px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--sub);font-size:.82rem;font-weight:500;cursor:pointer;font-family:inherit}
+  .admin-footer-wrap{margin-top:auto;padding-top:6vh;display:flex;flex-direction:column;align-items:center;gap:8px}
+  #adminGreet{font-size:.8rem;color:var(--sub);min-height:1em}
+  .admin-footer{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px}
+  .admin-footer button{padding:9px 22px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--sub);font-size:.82rem;font-weight:500;cursor:pointer;font-family:inherit;transition:border-color .15s ease,color .15s ease}
   .admin-footer button:hover{border-color:var(--border-strong);color:var(--text)}
 </style>
 </head>
@@ -160,10 +162,13 @@
     <button class="primary-btn" id="adminAddMemberBtn" type="button">계정 생성</button>
   </section>
 
-  <footer class="admin-footer">
-    <button id="adminChangePwBtn" type="button">비밀번호 변경</button>
-    <button id="adminMainBtn" type="button">메인으로</button>
-    <button id="adminLogoutBtn" type="button">로그아웃</button>
+  <footer class="admin-footer-wrap">
+    <div id="adminGreet"></div>
+    <div class="admin-footer">
+      <button id="adminChangePwBtn" type="button">비밀번호 변경</button>
+      <button id="adminMainBtn" type="button">메인으로</button>
+      <button id="adminLogoutBtn" type="button">로그아웃</button>
+    </div>
   </footer>
 </div>
 
@@ -172,7 +177,7 @@
     <h2 id="loginTitle">로그인</h2>
     <input id="loginId" type="text" name="username" placeholder="아이디" autocomplete="username">
     <input id="loginPw" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
-    <button class="primary" id="loginSubmit" type="button">로그인</button>
+    <button class="primary" id="loginSubmit" type="button">확인</button>
     <button class="secondary" id="loginCancel" type="button">닫기</button>
   </div>
 </div>
@@ -182,7 +187,7 @@
     <h2>비밀번호 변경</h2>
     <input id="pwOldInput" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
     <input id="pwNewInput" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
-    <button class="primary" id="pwSubmit" type="button">변경</button>
+    <button class="primary" id="pwSubmit" type="button">확인</button>
     <button class="secondary" id="pwCancel" type="button">닫기</button>
   </div>
 </div>
@@ -192,7 +197,7 @@
     <h2>계정 삭제</h2>
     <div class="admin-note danger">계정이 영구적으로 삭제됩니다. 되돌릴 수 없습니다.</div>
     <input id="delPwInput" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
-    <button class="primary" id="delSubmit" type="button">삭제</button>
+    <button class="primary" id="delSubmit" type="button">확인</button>
     <button class="secondary" id="delCancel" type="button">닫기</button>
   </div>
 </div>
@@ -221,7 +226,9 @@ var adminViewOpen=false;
 
 function updateAuthUI(){
   $("loginBtn").textContent=curUser?"로그아웃":"로그인";
-  $("greet").textContent=curUser?curUser+"님, 안녕하세요.":"";
+  var greetText=curUser?(isAdminUser?"관리자로 로그인 중입니다.":curUser+"님, 안녕하세요."):"";
+  $("greet").textContent=greetText;
+  if($("adminGreet"))$("adminGreet").textContent=greetText;
   if($("userChangePwBtn"))$("userChangePwBtn").style.display=curUser?"inline-block":"none";
   if($("userDeleteBtn"))$("userDeleteBtn").style.display=(curUser&&!isAdminUser)?"inline-block":"none";
   if($("adminSettingsBtn"))$("adminSettingsBtn").style.display=(curUser&&isAdminUser)?"inline-block":"none";
@@ -242,7 +249,7 @@ $("loginBtn").onclick=function(){
   if(curUser){doLogout()}
   else{
     $("loginId").value="";$("loginPw").value="";
-    $("loginSubmit").disabled=false;$("loginSubmit").textContent="로그인";
+    $("loginSubmit").disabled=false;$("loginSubmit").textContent="확인";
     $("loginModal").style.display="flex";
   }
 };
@@ -262,7 +269,7 @@ $("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal"
 // 일반 사용자용: 내 비밀번호 변경
 if($("userChangePwBtn"))$("userChangePwBtn").onclick=function(){
   $("pwOldInput").value="";$("pwNewInput").value="";
-  $("pwSubmit").disabled=false;$("pwSubmit").textContent="변경";
+  $("pwSubmit").disabled=false;$("pwSubmit").textContent="확인";
   $("pwModal").style.display="flex";
 };
 if($("pwCancel"))$("pwCancel").onclick=function(){$("pwModal").style.display="none"};
@@ -272,7 +279,7 @@ if($("pwSubmit"))$("pwSubmit").onclick=function(){
   var btn=$("pwSubmit");
   var showErr=function(text){
     btn.disabled=true;btn.textContent=text;
-    setTimeout(function(){btn.disabled=false;btn.textContent="변경"},1600);
+    setTimeout(function(){btn.disabled=false;btn.textContent="확인"},1600);
   };
   if(!oldPw||!newPw){showErr("현재/새 비밀번호를 모두 입력하세요.");return}
   if(newPw.length<6){showErr("새 비밀번호는 6자 이상이어야 합니다.");return}
@@ -286,7 +293,7 @@ if($("pwSubmit"))$("pwSubmit").onclick=function(){
       $("pwOldInput").value="";$("pwNewInput").value="";
       setTimeout(function(){
         $("pwModal").style.display="none";
-        btn.disabled=false;btn.textContent="변경";
+        btn.disabled=false;btn.textContent="확인";
       },900);
     })
     .catch(function(err){
@@ -298,7 +305,7 @@ if($("pwSubmit"))$("pwSubmit").onclick=function(){
 // 일반 사용자용: 계정 삭제 (본인 계정만, 실제 Firebase 계정 삭제)
 if($("userDeleteBtn"))$("userDeleteBtn").onclick=function(){
   $("delPwInput").value="";
-  $("delSubmit").disabled=false;$("delSubmit").textContent="삭제";
+  $("delSubmit").disabled=false;$("delSubmit").textContent="확인";
   $("delModal").style.display="flex";
 };
 if($("delCancel"))$("delCancel").onclick=function(){$("delModal").style.display="none"};
@@ -308,7 +315,7 @@ if($("delSubmit"))$("delSubmit").onclick=function(){
   var btn=$("delSubmit");
   var showErr=function(text){
     btn.disabled=true;btn.textContent=text;
-    setTimeout(function(){btn.disabled=false;btn.textContent="삭제"},1600);
+    setTimeout(function(){btn.disabled=false;btn.textContent="확인"},1600);
   };
   if(!pw){showErr("비밀번호를 입력하세요.");return}
   if(!fbAuth||!fbAuth.currentUser){showErr("로그인 정보가 없습니다.");return}
@@ -325,7 +332,7 @@ if($("delSubmit"))$("delSubmit").onclick=function(){
       btn.textContent="삭제되었습니다.";
       setTimeout(function(){
         $("delModal").style.display="none";
-        btn.disabled=false;btn.textContent="삭제";
+        btn.disabled=false;btn.textContent="확인";
         curUser=null;localStorage.removeItem("psq2curuser");
         isAdminUser=false;
         updateAuthUI();renderMode();
@@ -370,7 +377,7 @@ $("loginSubmit").onclick=function(){
   var btn=$("loginSubmit");
   var showErr=function(text){
     btn.disabled=true;btn.textContent=text;
-    setTimeout(function(){btn.disabled=false;btn.textContent="로그인"},1600);
+    setTimeout(function(){btn.disabled=false;btn.textContent="확인"},1600);
     updateAuthUI();
   };
   if(!id||!pw){showErr("아이디와 비밀번호를 입력하세요.");return}
@@ -383,7 +390,7 @@ $("loginSubmit").onclick=function(){
     .then(function(cred){
       return afterAuthSuccess(id,cred.user.uid).then(function(){
         $("loginModal").style.display="none";
-        btn.disabled=false;btn.textContent="로그인";
+        btn.disabled=false;btn.textContent="확인";
       });
     })
     .catch(function(err){
@@ -416,7 +423,7 @@ if(fbAuth)fbAuth.onAuthStateChanged(function(u){
 // 관리자 자신의 비밀번호 변경도 일반 계정과 동일한 pwModal/pwSubmit 로직을 그대로 재사용
 if($("adminChangePwBtn"))$("adminChangePwBtn").onclick=function(){
   $("pwOldInput").value="";$("pwNewInput").value="";
-  $("pwSubmit").disabled=false;$("pwSubmit").textContent="변경";
+  $("pwSubmit").disabled=false;$("pwSubmit").textContent="확인";
   $("pwModal").style.display="flex";
 };
 
