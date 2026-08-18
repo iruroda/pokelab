@@ -223,7 +223,14 @@ function idToEmail(id){
 }
 var $=function(id){return document.getElementById(id)};
 var curUser=localStorage.getItem("psq2curuser")||null;
-var isAdminUser=false;
+// 관리자 여부는 Firestore 조회로만 확실히 알 수 있지만, 그 조회가 끝나기 전 첫 렌더링에서
+// 문구/버튼이 잠깐 잘못 뜨는 걸 막기 위해 마지막으로 확인된 값을 캐시해뒀다가 우선 사용
+var isAdminUser=localStorage.getItem("psq2curadmin")==="1";
+function setAdminFlag(v){
+  isAdminUser=!!v;
+  if(curUser)localStorage.setItem("psq2curadmin",isAdminUser?"1":"0");
+  else localStorage.removeItem("psq2curadmin");
+}
 var adminViewOpen=false;
 
 function updateAuthUI(){
@@ -243,7 +250,7 @@ function renderMode(){
 function doLogout(){
   if(fbAuth)fbAuth.signOut();
   curUser=null;localStorage.removeItem("psq2curuser");
-  isAdminUser=false;
+  setAdminFlag(false);
   adminViewOpen=false;
   updateAuthUI();renderMode();
 }
@@ -336,7 +343,7 @@ if($("delSubmit"))$("delSubmit").onclick=function(){
         $("delModal").style.display="none";
         btn.disabled=false;btn.textContent="확인";
         curUser=null;localStorage.removeItem("psq2curuser");
-        isAdminUser=false;
+        setAdminFlag(false);
         updateAuthUI();renderMode();
       },900);
     })
@@ -367,8 +374,8 @@ function afterAuthSuccess(id, uid){
     }
     var wasAdmin=doc.exists&&doc.data().isAdmin===true;
     return ref.set(payload,{merge:true}).then(function(){
-      isAdminUser=wasAdmin;
       curUser=id;localStorage.setItem("psq2curuser",id);
+      setAdminFlag(wasAdmin);
       updateAuthUI();renderMode();
     });
   });
@@ -409,7 +416,7 @@ $("loginSubmit").onclick=function(){
 function refreshAdminFlag(uid){
   if(!db)return Promise.resolve();
   return db.collection("users").doc(uid).get().then(function(doc){
-    isAdminUser=!!(doc.exists&&doc.data().isAdmin===true);
+    setAdminFlag(doc.exists&&doc.data().isAdmin===true);
     updateAuthUI();renderMode();
   }).catch(function(){});
 }
@@ -417,7 +424,7 @@ function refreshAdminFlag(uid){
 updateAuthUI();
 renderMode();
 if(fbAuth)fbAuth.onAuthStateChanged(function(u){
-  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");isAdminUser=false;adminViewOpen=false;updateAuthUI();renderMode();}
+  if(!u&&curUser){curUser=null;localStorage.removeItem("psq2curuser");setAdminFlag(false);adminViewOpen=false;updateAuthUI();renderMode();}
   else if(u&&curUser){refreshAdminFlag(u.uid);}
 });
 
