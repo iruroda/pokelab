@@ -25,6 +25,18 @@
     min-height:100dvh;
     display:flex;
     justify-content:center;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none;
+  }
+  input,textarea{
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    -ms-user-select:text;
+    user-select:text;
+    -webkit-touch-callout:default;
   }
   #page{
     width:100%;
@@ -81,7 +93,7 @@
     min-height:1em;
   }
   .footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-  .disclaimer{margin-top:14px;font-size:.52rem;line-height:1.5;color:var(--sub);text-align:center;max-width:100%}
+  .disclaimer{margin-top:14px;font-size:.52rem;line-height:1.5;color:var(--sub);text-align:center;max-width:100%;user-select:none;-webkit-user-select:none}
   #loginBtn,#userChangePwBtn,#userDeleteBtn,#adminSettingsBtn{
     padding:9px 22px;
     border:1px solid var(--border);
