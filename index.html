@@ -109,12 +109,13 @@
   #loginBtn:hover,#userChangePwBtn:hover,#userDeleteBtn:hover,#adminSettingsBtn:hover{border-color:var(--border-strong);color:var(--text)}
 
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:10;padding:24px}
-  .modal .box{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
+  .modal .box{position:relative;background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
   .modal h2{font-size:17px;margin:0 0 16px;font-weight:700;color:var(--text)}
   .modal input{width:100%;background:#fafafa;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:11px 12px;margin-bottom:10px;outline:none;font-family:inherit}
   .modal input:focus{border-color:var(--border-strong)}
   .modal button.primary{margin-top:6px;background:var(--sub);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit}
-  .modal button.secondary{background:transparent;border:none;color:var(--sub);margin-top:10px;font-size:13px;cursor:pointer;width:100%;font-family:inherit}
+  .modal .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
+  .modal .close-x:hover{color:var(--text)}
 
   #adminPanel{display:none;width:100%;max-width:520px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:9vh 28px 32px;margin:0 auto}
   #adminPanel h1{margin:0 0 6vh}
@@ -175,6 +176,7 @@
     <h3>계정 생성</h3>
     <input id="adminNewId" type="text" placeholder="아이디" autocomplete="off">
     <input id="adminNewMemberPw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
+    <input id="adminNewMemberPw2" type="password" placeholder="비밀번호 확인" autocomplete="new-password">
     <button class="primary-btn" id="adminAddMemberBtn" type="button">확인</button>
   </section>
 
@@ -191,31 +193,32 @@
 
 <div id="loginModal" class="modal">
   <div class="box">
+    <button class="close-x" id="loginCancel" type="button" aria-label="닫기">&times;</button>
     <h2 id="loginTitle">로그인</h2>
     <input id="loginId" type="text" name="username" placeholder="아이디" autocomplete="username">
     <input id="loginPw" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
     <button class="primary" id="loginSubmit" type="button">확인</button>
-    <button class="secondary" id="loginCancel" type="button">닫기</button>
   </div>
 </div>
 
 <div id="pwModal" class="modal">
   <div class="box">
+    <button class="close-x" id="pwCancel" type="button" aria-label="닫기">&times;</button>
     <h2>비밀번호 변경</h2>
     <input id="pwOldInput" type="password" placeholder="현재 비밀번호" autocomplete="current-password">
     <input id="pwNewInput" type="password" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
+    <input id="pwNewInput2" type="password" placeholder="새 비밀번호 확인" autocomplete="new-password">
     <button class="primary" id="pwSubmit" type="button">확인</button>
-    <button class="secondary" id="pwCancel" type="button">닫기</button>
   </div>
 </div>
 
 <div id="delModal" class="modal">
   <div class="box">
+    <button class="close-x" id="delCancel" type="button" aria-label="닫기">&times;</button>
     <h2>계정 삭제</h2>
     <div class="admin-note danger">삭제 후에는 계정을 복구할 수 없습니다.</div>
     <input id="delPwInput" type="password" placeholder="비밀번호" autocomplete="current-password">
     <button class="primary" id="delSubmit" type="button">확인</button>
-    <button class="secondary" id="delCancel" type="button">닫기</button>
   </div>
 </div>
 
@@ -292,21 +295,22 @@ $("loginModal").onclick=function(e){if(e.target===$("loginModal"))$("loginModal"
 
 // 일반 사용자용: 내 비밀번호 변경
 if($("userChangePwBtn"))$("userChangePwBtn").onclick=function(){
-  $("pwOldInput").value="";$("pwNewInput").value="";
+  $("pwOldInput").value="";$("pwNewInput").value="";$("pwNewInput2").value="";
   $("pwSubmit").disabled=false;$("pwSubmit").textContent="확인";
   $("pwModal").style.display="flex";
 };
 if($("pwCancel"))$("pwCancel").onclick=function(){$("pwModal").style.display="none"};
 if($("pwModal"))$("pwModal").onclick=function(e){if(e.target===$("pwModal"))$("pwModal").style.display="none"};
 if($("pwSubmit"))$("pwSubmit").onclick=function(){
-  var oldPw=$("pwOldInput").value,newPw=$("pwNewInput").value;
+  var oldPw=$("pwOldInput").value,newPw=$("pwNewInput").value,newPw2=$("pwNewInput2").value;
   var btn=$("pwSubmit");
   var showErr=function(text){
     btn.disabled=true;btn.textContent=text;
     setTimeout(function(){btn.disabled=false;btn.textContent="확인"},1600);
   };
-  if(!oldPw||!newPw){showErr("변경에 실패했습니다.");return}
+  if(!oldPw||!newPw||!newPw2){showErr("변경에 실패했습니다.");return}
   if(newPw.length<6){showErr("변경에 실패했습니다.");return}
+  if(newPw!==newPw2){showErr("비밀번호가 다릅니다.");return}
   if(!fbAuth||!fbAuth.currentUser){showErr("변경에 실패했습니다.");return}
   btn.disabled=true;btn.textContent="변경 중…";
   var credential=firebase.auth.EmailAuthProvider.credential(fbAuth.currentUser.email,oldPw);
@@ -314,7 +318,7 @@ if($("pwSubmit"))$("pwSubmit").onclick=function(){
     .then(function(){return fbAuth.currentUser.updatePassword(newPw)})
     .then(function(){
       btn.textContent="변경되었습니다.";
-      $("pwOldInput").value="";$("pwNewInput").value="";
+      $("pwOldInput").value="";$("pwNewInput").value="";$("pwNewInput2").value="";
       setTimeout(function(){
         $("pwModal").style.display="none";
         btn.disabled=false;btn.textContent="확인";
@@ -442,7 +446,7 @@ if(fbAuth)fbAuth.onAuthStateChanged(function(u){
 // ---------------- 관리자 패널 ----------------
 // 관리자 자신의 비밀번호 변경도 일반 계정과 동일한 pwModal/pwSubmit 로직을 그대로 재사용
 if($("adminChangePwBtn"))$("adminChangePwBtn").onclick=function(){
-  $("pwOldInput").value="";$("pwNewInput").value="";
+  $("pwOldInput").value="";$("pwNewInput").value="";$("pwNewInput2").value="";
   $("pwSubmit").disabled=false;$("pwSubmit").textContent="확인";
   $("pwModal").style.display="flex";
 };
@@ -458,14 +462,15 @@ function getSecondaryAuth(){
 }
 
 if($("adminAddMemberBtn"))$("adminAddMemberBtn").onclick=function(){
-  var newId=$("adminNewId").value.trim(),newPw=$("adminNewMemberPw").value;
+  var newId=$("adminNewId").value.trim(),newPw=$("adminNewMemberPw").value,newPw2=$("adminNewMemberPw2").value;
   var btn=$("adminAddMemberBtn");
   var showErr=function(text){
     btn.disabled=true;btn.textContent=text;
     setTimeout(function(){btn.disabled=false;btn.textContent="확인"},1600);
   };
-  if(!newId||!newPw){showErr("생성에 실패했습니다.");return}
+  if(!newId||!newPw||!newPw2){showErr("생성에 실패했습니다.");return}
   if(newPw.length<6){showErr("생성에 실패했습니다.");return}
+  if(newPw!==newPw2){showErr("비밀번호가 다릅니다.");return}
   var email=idToEmail(newId);
   if(email.length>80){showErr("생성에 실패했습니다.");return}
   btn.disabled=true;btn.textContent="생성 중…";
@@ -479,7 +484,7 @@ if($("adminAddMemberBtn"))$("adminAddMemberBtn").onclick=function(){
     },{merge:true}).then(function(){return aux.signOut()});
   }).then(function(){
     btn.textContent="생성되었습니다.";
-    $("adminNewId").value="";$("adminNewMemberPw").value="";
+    $("adminNewId").value="";$("adminNewMemberPw").value="";$("adminNewMemberPw2").value="";
     loadMemberList();
     setTimeout(function(){btn.disabled=false;btn.textContent="확인"},1400);
   }).catch(function(err){
