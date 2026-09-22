@@ -115,9 +115,10 @@
   .modal h2{font-size:17px;margin:0 0 16px;font-weight:700;color:var(--text)}
   .modal .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
   .modal .close-x:hover{color:var(--text)}
-  .hold-btn{position:relative;overflow:hidden;margin-top:6px;background:transparent;border:1.5px solid var(--border-strong);border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;width:100%;font-family:inherit;touch-action:none;-webkit-tap-highlight-color:transparent}
+  .hold-btn{position:relative;overflow:hidden;margin-top:6px;background:transparent;border:1.5px solid var(--sub);border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;width:100%;font-family:inherit;touch-action:none;-webkit-tap-highlight-color:transparent}
   .hold-btn .hold-fill{position:absolute;top:0;left:0;bottom:0;width:0%;background:var(--sub);pointer-events:none}
   .hold-btn .hold-label{position:relative;z-index:1}
+  .hold-btn .hold-label-white{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;color:#fff;pointer-events:none;clip-path:inset(0 100% 0 0)}
 
   #adminPanel{display:none;width:100%;max-width:520px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:9vh 28px 32px;margin:0 auto}
   #adminPanel h1{margin:0 0 6vh}
@@ -181,7 +182,7 @@
     <button class="close-x" id="delCancel" type="button" aria-label="닫기">&times;</button>
     <h2>계정 초기화</h2>
     <div class="admin-note danger">계정에 저장된 기록을 초기화하고 로그아웃합니다.</div>
-    <button class="hold-btn" id="delSubmit" type="button"><span class="hold-fill" id="delSubmitFill"></span><span class="hold-label" id="delSubmitLabel">확인</span></button>
+    <button class="hold-btn" id="delSubmit" type="button"><span class="hold-fill" id="delSubmitFill"></span><span class="hold-label" id="delSubmitLabel">확인</span><span class="hold-label-white" id="delSubmitLabelWhite" aria-hidden="true">확인</span></button>
   </div>
 </div>
 
@@ -269,12 +270,19 @@ var delHolding=false, delCompleted=false, delActivePointerId=null;
 function resetDelHold(snap){
   delHolding=false; delCompleted=false; delActivePointerId=null;
   var fill=$("delSubmitFill");
-  if(!fill)return;
-  fill.style.transition=snap?"none":"width .15s ease-out";
-  fill.style.width="0%";
+  var labelWhite=$("delSubmitLabelWhite");
+  if(fill){
+    fill.style.transition=snap?"none":"width .15s ease-out";
+    fill.style.width="0%";
+  }
+  if(labelWhite){
+    labelWhite.style.transition=snap?"none":"clip-path .15s ease-out";
+    labelWhite.style.clipPath="inset(0 100% 0 0)";
+  }
 }
 if($("userDeleteBtn"))$("userDeleteBtn").onclick=function(){
   $("delSubmit").disabled=false;$("delSubmitLabel").textContent="확인";
+  if($("delSubmitLabelWhite"))$("delSubmitLabelWhite").textContent="확인";
   resetDelHold(true);
   $("delModal").style.display="flex";
 };
@@ -282,13 +290,13 @@ if($("delCancel"))$("delCancel").onclick=function(){$("delModal").style.display=
 if($("delModal"))$("delModal").onclick=function(e){if(e.target===$("delModal")){$("delModal").style.display="none";resetDelHold(true);}};
 
 if($("delSubmit")){
-  var delBtn=$("delSubmit"), delFill=$("delSubmitFill"), delLabel=$("delSubmitLabel");
+  var delBtn=$("delSubmit"), delFill=$("delSubmitFill"), delLabel=$("delSubmitLabel"), delLabelWhite=$("delSubmitLabelWhite");
   var DEL_HOLD_MS=3000;
 
   function doAccountReset(){
     var showErr=function(text){
-      delBtn.disabled=true;delLabel.textContent=text;
-      setTimeout(function(){delBtn.disabled=false;delLabel.textContent="확인";resetDelHold(false);},1600);
+      delBtn.disabled=true;delLabel.textContent=text;if(delLabelWhite)delLabelWhite.textContent=text;
+      setTimeout(function(){delBtn.disabled=false;delLabel.textContent="확인";if(delLabelWhite)delLabelWhite.textContent="확인";resetDelHold(false);},1600);
     };
     if(!fbAuth||!fbAuth.currentUser||!googleProvider){showErr("초기화에 실패했습니다.");return}
     var user=fbAuth.currentUser;
@@ -297,14 +305,14 @@ if($("delSubmit")){
       var cleanup=db?db.collection("users").doc(uid).delete().catch(function(){}):Promise.resolve();
       return cleanup.then(function(){return user.delete()});
     };
-    delBtn.disabled=true;delLabel.textContent="초기화 중…";
+    delBtn.disabled=true;delLabel.textContent="초기화 중…";if(delLabelWhite)delLabelWhite.textContent="초기화 중…";
     user.reauthenticateWithPopup(googleProvider)
       .then(doDelete)
       .then(function(){
-        delLabel.textContent="초기화되었습니다.";
+        delLabel.textContent="초기화되었습니다.";if(delLabelWhite)delLabelWhite.textContent="초기화되었습니다.";
         setTimeout(function(){
           $("delModal").style.display="none";
-          delBtn.disabled=false;delLabel.textContent="확인";
+          delBtn.disabled=false;delLabel.textContent="확인";if(delLabelWhite)delLabelWhite.textContent="확인";
           resetDelHold(true);
           curUser=null;localStorage.removeItem("psq2curuser");
           setAdminFlag(false);
@@ -312,7 +320,7 @@ if($("delSubmit")){
         },900);
       })
       .catch(function(err){
-        if(err&&err.code==="auth/popup-closed-by-user"){delBtn.disabled=false;delLabel.textContent="확인";resetDelHold(false);return}
+        if(err&&err.code==="auth/popup-closed-by-user"){delBtn.disabled=false;delLabel.textContent="확인";if(delLabelWhite)delLabelWhite.textContent="확인";resetDelHold(false);return}
         showErr("초기화에 실패했습니다.");
       });
   }
@@ -329,6 +337,13 @@ if($("delSubmit")){
     void delFill.offsetWidth;
     delFill.style.transition="width "+DEL_HOLD_MS+"ms linear";
     delFill.style.width="100%";
+    if(delLabelWhite){
+      delLabelWhite.style.transition="none";
+      delLabelWhite.style.clipPath="inset(0 100% 0 0)";
+      void delLabelWhite.offsetWidth;
+      delLabelWhite.style.transition="clip-path "+DEL_HOLD_MS+"ms linear";
+      delLabelWhite.style.clipPath="inset(0 0% 0 0)";
+    }
   });
   delFill.addEventListener("transitionend",function(e){
     if(e.propertyName!=="width")return;
