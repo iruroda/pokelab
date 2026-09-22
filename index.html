@@ -116,7 +116,7 @@
   .modal .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
   .modal .close-x:hover{color:var(--text)}
   .hold-btn{position:relative;overflow:hidden;margin-top:6px;background:transparent;border:1.5px solid var(--border-strong);border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;width:100%;font-family:inherit;touch-action:none;-webkit-tap-highlight-color:transparent}
-  .hold-btn .hold-fill{position:absolute;top:0;left:0;bottom:0;width:0%;background:#d32f2f;pointer-events:none}
+  .hold-btn .hold-fill{position:absolute;top:0;left:0;bottom:0;width:0%;background:var(--sub);pointer-events:none}
   .hold-btn .hold-label{position:relative;z-index:1}
 
   #adminPanel{display:none;width:100%;max-width:520px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:9vh 28px 32px;margin:0 auto}
@@ -181,7 +181,7 @@
     <button class="close-x" id="delCancel" type="button" aria-label="닫기">&times;</button>
     <h2>계정 초기화</h2>
     <div class="admin-note danger">계정에 저장된 기록을 초기화하고 로그아웃합니다.</div>
-    <button class="hold-btn" id="delSubmit" type="button"><span class="hold-fill" id="delSubmitFill"></span><span class="hold-label" id="delSubmitLabel">누르고 있기</span></button>
+    <button class="hold-btn" id="delSubmit" type="button"><span class="hold-fill" id="delSubmitFill"></span><span class="hold-label" id="delSubmitLabel">확인</span></button>
   </div>
 </div>
 
@@ -235,12 +235,8 @@ function doLogout(){
 }
 function doGoogleLogin(){
   var btn=$("loginBtn");
-  var showErr=function(text){
-    btn.disabled=true;btn.textContent=text;
-    setTimeout(function(){btn.disabled=false;updateAuthUI();},1600);
-  };
-  if(!fbAuth||!googleProvider){showErr("로그인에 실패했습니다.");return}
-  btn.disabled=true;btn.textContent="로그인 중…";
+  if(!fbAuth||!googleProvider)return;
+  btn.disabled=true;
   fbAuth.signInWithPopup(googleProvider)
     .then(function(cred){
       var u=cred.user;
@@ -250,8 +246,8 @@ function doGoogleLogin(){
       });
     })
     .catch(function(err){
-      if(err&&err.code==="auth/popup-closed-by-user"){btn.disabled=false;btn.textContent="로그인";return}
-      showErr("로그인에 실패했습니다.");
+      btn.disabled=false;
+      updateAuthUI();
     });
 }
 $("loginBtn").onclick=function(){
@@ -278,7 +274,7 @@ function resetDelHold(snap){
   fill.style.width="0%";
 }
 if($("userDeleteBtn"))$("userDeleteBtn").onclick=function(){
-  $("delSubmit").disabled=false;$("delSubmitLabel").textContent="누르고 있기";
+  $("delSubmit").disabled=false;$("delSubmitLabel").textContent="확인";
   resetDelHold(true);
   $("delModal").style.display="flex";
 };
@@ -292,7 +288,7 @@ if($("delSubmit")){
   function doAccountReset(){
     var showErr=function(text){
       delBtn.disabled=true;delLabel.textContent=text;
-      setTimeout(function(){delBtn.disabled=false;delLabel.textContent="누르고 있기";resetDelHold(false);},1600);
+      setTimeout(function(){delBtn.disabled=false;delLabel.textContent="확인";resetDelHold(false);},1600);
     };
     if(!fbAuth||!fbAuth.currentUser||!googleProvider){showErr("초기화에 실패했습니다.");return}
     var user=fbAuth.currentUser;
@@ -308,7 +304,7 @@ if($("delSubmit")){
         delLabel.textContent="초기화되었습니다.";
         setTimeout(function(){
           $("delModal").style.display="none";
-          delBtn.disabled=false;delLabel.textContent="누르고 있기";
+          delBtn.disabled=false;delLabel.textContent="확인";
           resetDelHold(true);
           curUser=null;localStorage.removeItem("psq2curuser");
           setAdminFlag(false);
@@ -316,7 +312,7 @@ if($("delSubmit")){
         },900);
       })
       .catch(function(err){
-        if(err&&err.code==="auth/popup-closed-by-user"){delBtn.disabled=false;delLabel.textContent="누르고 있기";resetDelHold(false);return}
+        if(err&&err.code==="auth/popup-closed-by-user"){delBtn.disabled=false;delLabel.textContent="확인";resetDelHold(false);return}
         showErr("초기화에 실패했습니다.");
       });
   }
