@@ -112,9 +112,12 @@
 
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:10;padding:24px}
   .modal .box{position:relative;background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
-  .modal h2{font-size:17px;margin:0 0 16px;font-weight:700;color:var(--text)}
-  .modal .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
-  .modal .close-x:hover{color:var(--text)}
+  .modal h2{font-size:15px;margin:0 0 16px;font-weight:800;color:var(--text)}
+  .modal .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:0;margin:0}
+  .modal .close-x:hover{opacity:.7}
+  .modal .close-x span{position:absolute;width:14px;height:2px;border-radius:1px;background:var(--sub)}
+  .modal .close-x span:nth-child(1){transform:rotate(45deg)}
+  .modal .close-x span:nth-child(2){transform:rotate(-45deg)}
   .hold-btn{position:relative;overflow:hidden;margin-top:6px;background:transparent;border:1.5px solid var(--sub);border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;width:100%;font-family:inherit;touch-action:none;-webkit-tap-highlight-color:transparent}
   .hold-btn .hold-fill{position:absolute;top:0;left:0;bottom:0;width:0%;background:var(--sub);pointer-events:none}
   .hold-btn .hold-label{position:relative;z-index:1}
@@ -179,7 +182,7 @@
 
 <div id="delModal" class="modal">
   <div class="box">
-    <button class="close-x" id="delCancel" type="button" aria-label="닫기">&times;</button>
+    <button class="close-x" id="delCancel" type="button" aria-label="닫기"><span></span><span></span></button>
     <h2>계정 초기화</h2>
     <div class="admin-note danger">계정에 저장된 기록을 초기화하고 로그아웃합니다.</div>
     <button class="hold-btn" id="delSubmit" type="button"><span class="hold-fill" id="delSubmitFill"></span><span class="hold-label" id="delSubmitLabel">확인</span><span class="hold-label-white" id="delSubmitLabelWhite" aria-hidden="true">확인</span></button>
