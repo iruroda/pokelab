@@ -90,20 +90,21 @@
     gap:8px;
   }
   #greet{
-    font-size:.8rem;
+    font-size:12.5px;
+    font-weight:600;
     color:var(--sub);
     min-height:1em;
   }
   .footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
   .disclaimer{margin-top:14px;font-size:.52rem;line-height:1.5;color:var(--sub);text-align:center;max-width:100%;user-select:none;-webkit-user-select:none}
   #loginBtn,#userDeleteBtn,#adminSettingsBtn{
-    padding:9px 22px;
+    height:36px;box-sizing:border-box;padding:0 28px;
     border:1px solid var(--border);
-    border-radius:999px;
+    border-radius:12px;
     background:#fff;
     color:var(--sub);
-    font-size:.82rem;
-    font-weight:500;
+    font-size:12.5px;
+    font-weight:700;
     cursor:pointer;
     font-family:inherit;
     transition:border-color .15s ease,color .15s ease;
@@ -112,35 +113,36 @@
 
   .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:10;padding:24px}
   .modal .box{position:relative;background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15)}
-  .modal h2{font-size:15px;margin:0 0 16px;font-weight:800;color:var(--text)}
+  .modal h2{font-size:17px;margin:0 0 16px;font-weight:800;color:var(--text)}
   .modal .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:0;margin:0}
   .modal .close-x:hover{opacity:.7}
   .modal .close-x span{position:absolute;width:14px;height:2px;border-radius:1px;background:var(--sub)}
   .modal .close-x span:nth-child(1){transform:rotate(45deg)}
   .modal .close-x span:nth-child(2){transform:rotate(-45deg)}
-  .hold-btn{position:relative;overflow:hidden;margin-top:6px;background:transparent;border:1.5px solid var(--sub);border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;width:100%;font-family:inherit;touch-action:none;-webkit-tap-highlight-color:transparent}
+  .hold-btn{position:relative;overflow:hidden;margin-top:6px;background:transparent;border:1.5px solid var(--sub);border-radius:12px;height:36px;padding:0;box-sizing:border-box;font-size:15px;font-weight:700;color:var(--text);cursor:pointer;width:100%;font-family:inherit;touch-action:none;-webkit-tap-highlight-color:transparent}
   .hold-btn .hold-fill{position:absolute;top:0;left:0;bottom:0;width:0%;background:var(--sub);pointer-events:none}
   .hold-btn .hold-label{position:relative;z-index:1}
   .hold-btn .hold-label-white{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;color:#fff;pointer-events:none;clip-path:inset(0 100% 0 0)}
 
   #adminPanel{display:none;width:100%;max-width:520px;min-height:100vh;min-height:100dvh;flex-direction:column;padding:9vh 28px 32px;margin:0 auto}
   #adminPanel h1{margin:0 0 6vh}
-  .primary-btn{background:var(--sub);border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:6px}
+  .primary-btn{background:var(--sub);border:none;border-radius:12px;height:36px;padding:0;box-sizing:border-box;font-size:15px;font-weight:700;color:#fff;cursor:pointer;width:100%;font-family:inherit;margin-top:6px}
   .admin-note{font-size:.72rem;color:var(--sub);margin-bottom:12px;line-height:1.5}
   .admin-note.danger{color:#d32f2f;text-align:left}
+  .modal .admin-note{font-size:15px;line-height:1.6}
   .admin-sub{font-size:.78rem;color:var(--sub);font-weight:400}
   .admin-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto}
   .admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px}
   .admin-row .who{display:flex;flex-direction:column;gap:2px}
   .admin-row .who b{font-size:.85rem}
   .admin-row .who span{font-size:.7rem;color:var(--sub)}
-  .admin-row button{border:1px solid var(--border);background:#fff;color:var(--sub);border-radius:999px;padding:6px 14px;font-size:.74rem;font-weight:500;cursor:pointer;font-family:inherit;flex-shrink:0;transition:border-color .15s ease,color .15s ease}
+  .admin-row button{border:1px solid var(--border);background:#fff;color:var(--sub);border-radius:12px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;transition:border-color .15s ease,color .15s ease}
   .admin-row button:hover{border-color:var(--border-strong);color:var(--text)}
   .admin-row.is-disabled{opacity:.55}
   .admin-footer-wrap{margin-top:auto;padding-top:6vh;display:flex;flex-direction:column;align-items:center;gap:8px}
-  #adminGreet{font-size:.8rem;color:var(--sub);min-height:1em}
+  #adminGreet{font-size:12.5px;font-weight:600;color:var(--sub);min-height:1em}
   .admin-footer{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px}
-  .admin-footer button{padding:9px 22px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--sub);font-size:.82rem;font-weight:500;cursor:pointer;font-family:inherit;transition:border-color .15s ease,color .15s ease}
+  .admin-footer button{height:36px;box-sizing:border-box;padding:0 28px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--sub);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:border-color .15s ease,color .15s ease}
   .admin-footer button:hover{border-color:var(--border-strong);color:var(--text)}
 </style>
 </head>
